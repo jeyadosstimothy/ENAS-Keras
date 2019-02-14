@@ -55,7 +55,7 @@ class EfficientNeuralArchitectureSearch(object):
                  controller_reduction_model_file="reduction_controller.hdf5",
                  child_init_filters=64,
                  child_network_definition=["N", "N", "R"],
-                 child_weight_directory="./weights",
+                 child_weight_directory="child_weights",
                  child_opt_loss='categorical_crossentropy',
                  child_opt=SGD(lr=0.05, decay=1e-6, nesterov=True),
                  child_opt_metrics=['accuracy'],
@@ -69,7 +69,8 @@ class EfficientNeuralArchitectureSearch(object):
                  save_to_disk=False,
                  set_from_dict=True,
                  data_gen=None,
-                 data_flow_gen=None):
+                 data_flow_gen=None,
+                 working_directory='.'):
         self.x_train = x_train
         self.y_train = y_train
         self.x_test = x_test
@@ -87,15 +88,15 @@ class EfficientNeuralArchitectureSearch(object):
         self.controller_tanh_constant = controller_tanh_constant
         self.controller_input_x = np.array(
             [[[self.num_opers + self.num_nodes]]])
-        self.controller_normal_model_file = controller_normal_model_file
-        self.controller_reduction_model_file = controller_reduction_model_file
+        self.controller_normal_model_file = os.path.join(working_directory, controller_normal_model_file)
+        self.controller_reduction_model_file = os.path.join(working_directory, controller_reduction_model_file)
 
         self.child_network_name = child_network_name
         self.child_classes = child_classes
         self.child_input_shape = child_input_shape
         self.child_init_filters = child_init_filters
         self.child_network_definition = child_network_definition
-        self.child_weight_directory = child_weight_directory
+        self.child_weight_directory = os.path.join(working_directory, child_weight_directory)
         self.child_opt_loss = child_opt_loss
         self.child_opt = child_opt
         self.child_opt_metrics = child_opt_metrics
@@ -115,6 +116,7 @@ class EfficientNeuralArchitectureSearch(object):
         self.data_gen = data_gen
         self.data_flow_gen = data_flow_gen
         self.initialize_child_weight_directory = initialize_child_weight_directory
+        self.working_directory = working_directory
 
         self.reward = 0
 
@@ -126,6 +128,7 @@ class EfficientNeuralArchitectureSearch(object):
             model_file=self.controller_reduction_model_file)
 
         self.weight_dict = {}
+        self.best_epoch_num = 0
         self.best_val_acc = 0
         self.best_normal_cell = None
         self.best_reduction_cell = None
@@ -238,7 +241,7 @@ class EfficientNeuralArchitectureSearch(object):
             return self.x_test[_batch], self.y_test[_batch]
 
     def write_record(self, epoch, lr, reward, val_loss):
-        record_file = "{0}_record.csv".format(self.child_network_name)
+        record_file = "{0}_record.csv".format(os.path.join(self.working_directory, self.child_network_name))
         with open(record_file, "a") as f:
             writer = csv.writer(f, lineterminator='\n')
             if not os.path.exists(record_file):
@@ -248,7 +251,7 @@ class EfficientNeuralArchitectureSearch(object):
         print("saved records so far")
 
     def read_record(self):
-        record_file = "{0}_record.csv".format(self.child_network_name)
+        record_file = "{0}_record.csv".format(os.path.join(self.working_directory, self.child_network_name))
         rec = []
         if os.path.exists(record_file):
             with open(record_file, 'r') as f:
@@ -262,22 +265,22 @@ class EfficientNeuralArchitectureSearch(object):
 
     def save_best_cell(self):
         normal_cell_file = "{0}_normal_cell.pkl".format(
-            self.child_network_name)
+            os.path.join(self.working_directory, self.child_network_name))
         with open(normal_cell_file, "wb") as f:
             pickle.dump(self.best_normal_cell, f)
         reduction_cell_file = "{0}_reduction_cell.pkl".format(
-            self.child_network_name)
+            os.path.join(self.working_directory, self.child_network_name))
         with open(reduction_cell_file, "wb") as f:
             pickle.dump(self.best_reduction_cell, f)
         print("saved best cells")
 
     def load_best_cell(self):
         normal_cell_file = "{0}_normal_cell.pkl".format(
-            self.child_network_name)
+            os.path.join(self.working_directory, self.child_network_name))
         with open(normal_cell_file, "rb") as f:
             self.best_normal_cell = pickle.load(f)
         reduction_cell_file = "{0}_reduction_cell.pkl".format(
-            self.child_network_name)
+            os.path.join(self.working_directory, self.child_network_name))
         with open(reduction_cell_file, "rb") as f:
             self.best_reduction_cell = pickle.load(f)
         print("loaded best cells")
@@ -329,6 +332,7 @@ class EfficientNeuralArchitectureSearch(object):
             self.reward = val_acc[1]
 
             if self.best_val_acc < val_acc[1]:
+                self.best_epoch_num = e
                 self.best_val_acc = val_acc[1]
                 self.best_normal_cell = sample_cell["normal_cell"]
                 self.best_reduction_cell = sample_cell["reduction_cell"]
