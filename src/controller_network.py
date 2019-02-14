@@ -16,12 +16,12 @@ from keras.models import load_model
 
 import tensorflow as tf
 
-from src.keras_utils import get_weight_initializer
-from src.keras_utils import get_weight_regularizer
-from src.utils import get_random_str
-from src.utils import get_size_str
-from src.utils import get_int_list_in_str
-from src.utils import generate_random_cell
+from .keras_utils import get_weight_initializer
+from .keras_utils import get_weight_regularizer
+from .utils import get_random_str
+from .utils import get_size_str
+from .utils import get_int_list_in_str
+from .utils import generate_random_cell
 
 
 class ControllerRNNController(object):

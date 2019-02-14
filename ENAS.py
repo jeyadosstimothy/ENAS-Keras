@@ -15,13 +15,13 @@ from keras.callbacks import EarlyStopping, LearningRateScheduler
 
 import tensorflow as tf
 
-from src.child_network_micro_search import NetworkOperation
-from src.child_network_micro_search import NetworkOperationController
-from src.child_network_micro_search import CellGenerator
-from src.child_network_micro_search import ChildNetworkController
+from .src.child_network_micro_search import NetworkOperation
+from .src.child_network_micro_search import NetworkOperationController
+from .src.child_network_micro_search import CellGenerator
+from .src.child_network_micro_search import ChildNetworkController
 
-from src.controller_network import ControllerRNNController
-from src.utils import sgdr_learning_rate
+from .src.controller_network import ControllerRNNController
+from .src.utils import sgdr_learning_rate
 
 nt = sgdr_learning_rate(n_Max=0.05, n_min=0.001, ranges=5, init_cycle=10)
 
@@ -425,3 +425,4 @@ class EfficientNeuralArchitectureSearch(object):
 
         print("EVALUATION LOSS: {0}\nEVALUATION ACCURACY: {1}".format(
             val_acc[0], val_acc[1]))
+        self.best_val_acc = val_acc[1]

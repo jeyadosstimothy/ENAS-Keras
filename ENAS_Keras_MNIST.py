@@ -14,10 +14,11 @@ from keras.callbacks import EarlyStopping, LearningRateScheduler
 
 import tensorflow as tf
 
-from ENAS import EfficientNeuralArchitectureSearch
-from src.utils import sgdr_learning_rate
+from .ENAS import EfficientNeuralArchitectureSearch
+from .src.utils import sgdr_learning_rate
 
 
+# Run as: python3 -m ENAS_Keras.ENAS_Keras_MNIST from parent directory (./..)
 # Load MNIST
 
 

@@ -18,13 +18,13 @@ from keras import losses, metrics
 
 import tensorflow as tf
 
-from src.keras_utils import get_weight_initializer
-from src.keras_utils import get_weight_regularizer
-from src.utils import get_random_str
-from src.utils import get_size_str
-from src.utils import get_int_list_in_str
-from src.utils import generate_random_cell
-from src.utils import make_dir
+from .keras_utils import get_weight_initializer
+from .keras_utils import get_weight_regularizer
+from .utils import get_random_str
+from .utils import get_size_str
+from .utils import get_int_list_in_str
+from .utils import generate_random_cell
+from .utils import make_dir
 
 
 class NetworkOperation(object):
@@ -480,7 +480,7 @@ class ChildNetworkController(object):
 
         self.child_network_definition = child_network_definition
         """
-    child_network_definition is like ["N","N","R","N","N","R"] 
+    child_network_definition is like ["N","N","R","N","N","R"]
     where N is for normal and R for reduction
     """
 
@@ -520,12 +520,12 @@ class ChildNetworkController(object):
         _model_dict = {}
         """
     _model_dict = {layer_num(int): {full_name(str): name,
-                                    cell_type(str): normal, 
+                                    cell_type(str): normal,
                                     type_num(str): (int),
                                     node_num(str): (int),
                                     node_from(str): (int),
-                                    oper(str): sepconv3x3, 
-                                    func(str): relu, 
+                                    oper(str): sepconv3x3,
+                                    func(str): relu,
                                     input_shape(str): [32,32,3](int tuple),
                                     output_shape(str): [32,32,3](int tuple),
                                     param(str): 283
@@ -579,9 +579,9 @@ class ChildNetworkController(object):
 
     def generate_weight_name(self, d):
         """
-    weight_name = 
+    weight_name =
     {operation}_{func}_{cell_type}_{type_num}_{node_num}_{node_from}_{input HxWxD}_{output HxWxD}_{param} if sepconv
-    else {func}_{cell_type}_{type_num}_{node_num}_{node_from}_{input HxWxD}_{output HxWxD}_{param} 
+    else {func}_{cell_type}_{type_num}_{node_num}_{node_from}_{input HxWxD}_{output HxWxD}_{param}
     """
         if d["func"] == "sepconv2d":
             return "{0}_{1}_{2}_{3}_{4}_{5}_{6}_{7}_{8}".format(

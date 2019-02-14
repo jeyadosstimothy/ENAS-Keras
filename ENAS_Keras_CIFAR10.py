@@ -15,11 +15,11 @@ from keras.callbacks import EarlyStopping, LearningRateScheduler
 
 import tensorflow as tf
 
-from ENAS import EfficientNeuralArchitectureSearch
-from src.utils import sgdr_learning_rate, get_random_eraser, MixupGenerator
+from .ENAS import EfficientNeuralArchitectureSearch
+from .src.utils import sgdr_learning_rate, get_random_eraser, MixupGenerator
 
+# Run as: python3 -m ENAS_Keras.ENAS_Keras_CIFAR10 from parent directory (./..)
 # Load Cifar10 dataset
-
 
 child_classes = 10
 
