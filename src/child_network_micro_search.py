@@ -13,6 +13,7 @@ from tensorflow.keras.layers import Add, Concatenate, Reshape
 from tensorflow.keras.layers import Input, Dense, Dropout, Activation, BatchNormalization, ZeroPadding2D, Cropping2D
 from tensorflow.keras.layers import Conv2D, SeparableConv2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D
 from tensorflow.keras.optimizers import SGD
+from tensorflow.train import GradientDescentOptimizer
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras import losses, metrics
 
@@ -496,13 +497,15 @@ class ChildNetworkController(object):
         self.opt = opt
         self.opt_metrics = opt_metrics
 
+        self.useTpu = useTpu
+
         self.model = self.generate_child_network()
         self.model_dict = self.generate_model_dict()
 
         self.weight_dict = weight_dict
         self.weight_directory = make_dir(weight_directory)
 
-        self.useTpu = useTpu
+
 
         if self.useTpu:
             self.model = tf.contrib.tpu.keras_to_tpu_model(

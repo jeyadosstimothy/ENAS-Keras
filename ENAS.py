@@ -13,6 +13,7 @@ from tensorflow import keras
 from tensorflow.keras import backend as K
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam, SGD
+from tensorflow.train import AdamOptimizer, GradientDescentOptimizer
 from tensorflow.keras.callbacks import EarlyStopping, LearningRateScheduler
 
 from .src.child_network_micro_search import NetworkOperation
@@ -123,6 +124,10 @@ class EfficientNeuralArchitectureSearch(object):
         self.useTpu = useTpu
 
         self.reward = 0
+
+        if self.useTpu:
+            self.child_opt = GradientDescentOptimizer(learning_rate=0.05 * 8)
+            self.controller_opt = AdamOptimizer(learning_rate=0.00035 * 8)
 
         self.NCRC = self.define_controller_rnn(
             controller_network_name="normalcontroller",
@@ -316,6 +321,9 @@ class EfficientNeuralArchitectureSearch(object):
 
             self.child_opt = SGD(lr=self.child_lr_scedule[e], nesterov=True)
 
+            if self.useTpu:
+                self.child_opt = GradientDescentOptimizer(learning_rate=self.child_lr_scedule[e] * 8)
+
             CG = self.generate_child_cell(sample_cell["normal_cell"],
                                           sample_cell["reduction_cell"],
                                           self.define_network_operations())
@@ -407,6 +415,8 @@ class EfficientNeuralArchitectureSearch(object):
 
         CG = self.generate_child_cell(normal_cell, reduction_cell,
                                       self.define_network_operations())
+        if self.useTpu:
+            child_opt = AdamOptimizer(learning_rate=0.001 * 8)
         CNC = self.define_chile_network(CG, child_opt)
 
         print("MODEL SUMMARY:\n")
