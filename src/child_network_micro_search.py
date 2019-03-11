@@ -5,16 +5,16 @@ import random
 import string
 from sklearn.externals import joblib
 
-import keras
-from keras import backend as K
-from keras.utils import to_categorical
-from keras import Model
-from keras.layers import Add, Concatenate, Reshape
-from keras.layers import Input, Dense, Dropout, Activation, BatchNormalization, ZeroPadding2D, Cropping2D
-from keras.layers import Conv2D, SeparableConv2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D
-from keras.optimizers import Adam, SGD
-from keras.callbacks import EarlyStopping
-from keras import losses, metrics
+from tensorflow import keras
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Add, Concatenate, Reshape
+from tensorflow.keras.layers import Input, Dense, Dropout, Activation, BatchNormalization, ZeroPadding2D, Cropping2D
+from tensorflow.keras.layers import Conv2D, SeparableConv2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras import losses, metrics
 
 import tensorflow as tf
 
@@ -25,6 +25,11 @@ from .utils import get_size_str
 from .utils import get_int_list_in_str
 from .utils import generate_random_cell
 from .utils import make_dir
+
+
+# This address identifies the TPU we'll use when configuring TensorFlow.
+TPU_WORKER = 'grpc://' + os.environ['COLAB_TPU_ADDR']
+tf.logging.set_verbosity(tf.logging.INFO)
 
 
 class NetworkOperation(object):
@@ -476,13 +481,14 @@ class ChildNetworkController(object):
                  weight_directory="./",
                  opt_loss='categorical_crossentropy',
                  opt=SGD(lr=0.001, decay=1e-6, nesterov=True),
-                 opt_metrics=['accuracy']):
+                 opt_metrics=['accuracy'],
+                 useTpu=False):
 
         self.child_network_definition = child_network_definition
         """
-    child_network_definition is like ["N","N","R","N","N","R"]
-    where N is for normal and R for reduction
-    """
+        child_network_definition is like ["N","N","R","N","N","R"]
+        where N is for normal and R for reduction
+        """
 
         self.CG = CellGeneratorInstance
 
@@ -495,6 +501,14 @@ class ChildNetworkController(object):
 
         self.weight_dict = weight_dict
         self.weight_directory = make_dir(weight_directory)
+
+        self.useTpu = useTpu
+
+        if self.useTpu:
+            self.model = tf.contrib.tpu.keras_to_tpu_model(
+                self.model,
+                strategy=tf.contrib.tpu.TPUDistributionStrategy(
+                    tf.contrib.cluster_resolver.TPUClusterResolver(TPU_WORKER)))
 
         self.graph = tf.get_default_graph()
 

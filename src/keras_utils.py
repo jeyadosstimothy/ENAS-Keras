@@ -1,6 +1,6 @@
-import keras
-from keras import backend as K
-from keras import initializers, regularizers
+from tensorflow import keras
+from tensorflow.keras import backend as K
+from tensorflow.keras import initializers, regularizers
 
 
 def get_weight_initializer(initializer=None, seed=None):

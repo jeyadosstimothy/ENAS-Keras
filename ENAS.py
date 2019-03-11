@@ -7,13 +7,13 @@ import shutil
 import gc
 from copy import deepcopy
 
-import keras
-from keras import backend as K
-from keras.utils import to_categorical
-from keras.optimizers import Adam, SGD
-from keras.callbacks import EarlyStopping, LearningRateScheduler
 
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam, SGD
+from tensorflow.keras.callbacks import EarlyStopping, LearningRateScheduler
 
 from .src.child_network_micro_search import NetworkOperation
 from .src.child_network_micro_search import NetworkOperationController
@@ -71,7 +71,8 @@ class EfficientNeuralArchitectureSearch(object):
                  set_from_dict=True,
                  data_gen=None,
                  data_flow_gen=None,
-                 working_directory='.'):
+                 working_directory='.',
+                 useTpu=False):
         self.x_train = x_train
         self.y_train = y_train
         self.x_test = x_test
@@ -119,6 +120,7 @@ class EfficientNeuralArchitectureSearch(object):
         self.data_flow_gen = data_flow_gen
         self.initialize_child_weight_directory = initialize_child_weight_directory
         self.working_directory = working_directory
+        self.useTpu = useTpu
 
         self.reward = 0
 
@@ -203,7 +205,8 @@ class EfficientNeuralArchitectureSearch(object):
             weight_directory=self.child_weight_directory,
             opt_loss=self.child_opt_loss,
             opt=opt,
-            opt_metrics=self.child_opt_metrics)
+            opt_metrics=self.child_opt_metrics,
+            useTpu=self.useTpu)
 
     def predict_architecture(self, CRC):
         controller_pred = CRC.softmax_predict()

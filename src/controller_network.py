@@ -3,16 +3,16 @@ import os
 import sys
 import random
 
-import keras
-from keras import backend as K
-from keras.utils import to_categorical
-from keras import Model
-from keras.layers import Add, Concatenate, Embedding, LSTM, LSTMCell, RNN, Reshape
-from keras.layers import Input, Dense, Dropout, Activation, BatchNormalization
-from keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
-from keras import losses, metrics
-from keras.models import load_model
+from tensorflow import keras
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Add, Concatenate, Embedding, LSTM, LSTMCell, RNN, Reshape
+from tensorflow.keras.layers import Input, Dense, Dropout, Activation, BatchNormalization
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras import losses, metrics
+from tensorflow.keras.models import load_model
 
 import tensorflow as tf
 
@@ -131,6 +131,7 @@ class ControllerRNNController(object):
 
         if self.model_file is not None and os.path.exists(self.model_file):
             controller_rnn.load_weights(self.model_file)
+
         return controller_rnn
 
     def compile_controller_rnn(self):
