@@ -319,9 +319,9 @@ class EfficientNeuralArchitectureSearch(object):
             CNC.train_child_network(
                 x_train=self.x_train,
                 y_train=self.y_train,
+                validation_data=(x_val_batch, y_val_batch),
                 batch_size=self.child_batch_size,
-                epochs=1,
-                callbacks=None,
+                epochs=5,
                 data_gen=self.data_gen,
                 data_flow_gen=self.data_flow_gen)
             CNC.fetch_layer_weight(save_to_disk=self.save_to_disk)
