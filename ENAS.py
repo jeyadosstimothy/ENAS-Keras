@@ -61,7 +61,8 @@ class EfficientNeuralArchitectureSearch(object):
                  child_opt_metrics=['accuracy'],
                  child_val_batch_size=128,
                  child_batch_size=128,
-                 child_epochs=len(nt),
+                 child_epochs=5,
+                 search_epochs=len(nt),
                  child_lr_scedule=nt,
                  start_from_record=True,
                  run_on_jupyter=True,
@@ -109,6 +110,7 @@ class EfficientNeuralArchitectureSearch(object):
         self.child_train_index = self.get_child_index(self.y_train)
         self.child_val_index = self.get_child_index(self.y_test)
 
+        self.search_epochs = search_epochs
         self.start_from_record = start_from_record
         self.run_on_jupyter = run_on_jupyter
         self.save_to_disk = save_to_disk
@@ -294,8 +296,8 @@ class EfficientNeuralArchitectureSearch(object):
                 self.load_best_cell()
             else:
                 starting_epoch = 0
-        for e in range(starting_epoch, self.child_epochs):
-            print("SEARCH EPOCH: {0} / {1}".format(e, self.child_epochs))
+        for e in range(starting_epoch, self.search_epochs):
+            print("SEARCH EPOCH: {0} / {1}".format(e, self.search_epochs))
             normal_controller_pred, normal_pred_dict = self.predict_architecture(
                 self.NCRC)
             reduction_controller_pred, reduction_pred_dict = self.predict_architecture(
@@ -321,7 +323,7 @@ class EfficientNeuralArchitectureSearch(object):
                 y_train=self.y_train,
                 validation_data=(x_val_batch, y_val_batch),
                 batch_size=self.child_batch_size,
-                epochs=5,
+                epochs=self.child_epochs,
                 data_gen=self.data_gen,
                 data_flow_gen=self.data_flow_gen)
             CNC.fetch_layer_weight(save_to_disk=self.save_to_disk)
@@ -352,7 +354,7 @@ class EfficientNeuralArchitectureSearch(object):
                 print("{0}: {1}".format(k, v))
             self.child_train_records.append(child_train_record)
 
-            if e == self.child_epochs - 1:
+            if e == self.search_epochs - 1:
                 self.final_output(CNC, val_acc)
                 break
 
@@ -374,7 +376,7 @@ class EfficientNeuralArchitectureSearch(object):
 
             print("{0} training finished {0}".format(self._sep))
             print("{0} FINISHED SEARCH EPOCH {1} / {2} {0}".format(
-                self._sep, e, self.child_epochs))
+                self._sep, e, self.search_epochs))
             if self.run_on_jupyter:
                 from IPython.display import clear_output
                 clear_output(wait=True)
