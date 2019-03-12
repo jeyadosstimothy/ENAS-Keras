@@ -242,14 +242,17 @@ class EfficientNeuralArchitectureSearch(object):
         else:
             return self.x_test[_batch], self.y_test[_batch]
 
-    def write_record(self, epoch, lr, reward, val_loss):
+    def write_record(self, epoch, lr, reward, val_loss, val_acc):
         record_file = "{0}_record.csv".format(os.path.join(self.working_directory, self.child_network_name))
+        newFile = False
+        if not os.path.exists(record_file):
+            newFile = True
         with open(record_file, "a") as f:
             writer = csv.writer(f, lineterminator='\n')
-            if not os.path.exists(record_file):
+            if newFile:
                 writer.writerow(
-                    ["epoch", "lr", "reward", "val_loss", "best_val_acc"])
-            writer.writerow([epoch, lr, reward, val_loss, self.best_val_acc])
+                    ["epoch", "lr", "reward", "val_loss", "val_acc", "best_val_acc"])
+            writer.writerow([epoch, lr, reward, val_loss, val_acc, self.best_val_acc])
         print("saved records so far")
 
     def read_record(self):
@@ -292,7 +295,7 @@ class EfficientNeuralArchitectureSearch(object):
             rec = self.read_record()
             if rec is not None:
                 starting_epoch = int(rec[-1][0]) + 1
-                self.best_val_acc = float(rec[-1][4])
+                self.best_val_acc = float(rec[-1][-1])
                 self.load_best_cell()
             else:
                 starting_epoch = 0
@@ -340,7 +343,7 @@ class EfficientNeuralArchitectureSearch(object):
                 self.best_reduction_cell = sample_cell["reduction_cell"]
 
             self.write_record(e, self.child_lr_scedule[e], self.reward,
-                              val_acc[0])
+                              val_acc[0], val_acc[1])
             self.save_best_cell()
 
             child_train_record = {}
